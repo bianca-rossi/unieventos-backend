@@ -1,53 +1,123 @@
 # UniEventos — Backend
 
-Este é o núcleo do sistema **UniEventos**. O projeto está dividido em **dois domínios principais**: **Autenticação** e **Gestão de Eventos**.
+Backend do **UniEventos**: plataforma para gestão e divulgação de eventos acadêmicos. O código está organizado em **microsserviços** no mesmo repositório (**monorepo**), com **banco de dados isolado por serviço** (PostgreSQL).
 
-## Como rodar 🚀
+| Microsserviço   | Responsabilidade                          | Schema Prisma                          |
+|-----------------|-------------------------------------------|----------------------------------------|
+| **auth-service** | Utilizadores, perfis, registo de acessos | `services/auth-service/prisma/`        |
+| **event-service** | Eventos, categorias, atividades, inscrições, check-in, certificados | `services/event-service/prisma/` |
 
-**Pré-requisito:** Node.js 20+ instalado.
+## Pré-requisitos
+
+- **Node.js** 20 ou superior  
+- **Docker** e **Docker Compose** (para subir os dois PostgreSQL de desenvolvimento)
+
+## Bases de dados (Docker Compose)
+
+Na raiz do repositório (`backend/`), os dois contentores Postgres usam **volumes** e **healthchecks** separados:
+
+| Serviço no Compose | Base de dados      | Porta no *host* | Utilizador / senha (apenas dev) |
+|--------------------|--------------------|-----------------|----------------------------------|
+| `auth-db`          | `auth_service_db`  | **5431**        | `admin` / `password`             |
+| `event-db`         | `event_service_db` | **5433**        | `admin` / `password`             |
 
 ```bash
-# 1. Instalar as dependências
+docker compose up -d
+```
+
+Para parar e remover os contentores (os dados persistem nos volumes nomeados):
+
+```bash
+docker compose down
+```
+
+> **Nota:** As credenciais acima são para **ambiente local de desenvolvimento**. Em produção use segredos fortes, rede privada e **não** exponha o Postgres publicamente.
+
+## Configuração (`.env`)
+
+Cada microsserviço lê `DATABASE_URL` a partir de um ficheiro **`.env`** na sua pasta (não versionado).
+
+1. Copie o exemplo e ajuste se necessário:
+
+   ```bash
+   cp services/auth-service/.env.example services/auth-service/.env
+   cp services/event-service/.env.example services/event-service/.env
+   ```
+
+2. Com o Docker Compose a correr, as URLs devem apontar para as portas do *host* **5431** (auth) e **5433** (event), como nos ficheiros `.env.example`.
+
+## Como desenvolver (por microsserviço)
+
+Não existe `package.json` na raiz: instale dependências **dentro** de cada serviço.
+
+### Auth Service
+
+```bash
+cd services/auth-service
 npm install
-
-# 2. Verificar tipagem (sem gerar ficheiros)
+npm run prisma:generate
+npm run prisma:migrate   # aplica migrações em desenvolvimento
 npm run typecheck
-
-# 3. Compilar (gera a pasta dist/, espelhando services/)
 npm run build
 ```
+
+### Event Service
+
+```bash
+cd services/event-service
+npm install
+npm run prisma:generate
+npm run prisma:migrate
+npm run typecheck
+npm run build
+```
+
+### Scripts úteis (npm)
+
+| Script            | Descrição                          |
+|-------------------|------------------------------------|
+| `typecheck`       | Verifica tipos TypeScript (`tsc --noEmit`) |
+| `build`           | Compila para `dist/`               |
+| `prisma:generate` | Gera o Prisma Client               |
+| `prisma:migrate`  | Migrações em desenvolvimento       |
+| `prisma:deploy`   | Migrações em CI/produção           |
+| `prisma:studio`   | Interface visual para a base       |
 
 ## Estrutura de pastas
 
 ```text
 backend/
-├── package.json              # Scripts e dependências (TypeScript)
-├── package-lock.json
-├── tsconfig.json             # strict, ESM (NodeNext), rootDir/outDir
+├── docker-compose.yml          # Dois Postgres (auth-db + event-db)
 ├── README.md
 ├── services/
 │   ├── auth-service/
-│   │   └── src/
-│   │       └── entity.ts     # User, Profile, AccessLog + enums Auth
+│   │   ├── prisma/
+│   │   │   ├── schema.prisma
+│   │   │   └── migrations/
+│   │   ├── src/
+│   │   │   └── entity.ts       # Domínio em TypeScript (alinhado à UML)
+│   │   ├── .env.example
+│   │   └── package.json
 │   └── event-service/
-│       └── src/
-│           └── entity.ts     # Event, Category, Activity, … + enums Event
-├── diagrams/                 # UML (draw.io) — contrato com o domínio
-│   ├── auth-service-uml.drawio
-│   └── event-service-uml.drawio
-└── dist/                     # Criada pelo npm run build (não versionar)
+│       ├── prisma/
+│       │   ├── schema.prisma
+│       │   └── migrations/
+│       ├── src/
+│       │   └── entity.ts
+│       ├── .env.example
+│       └── package.json
+└── diagrams/                   # UML (draw.io)
+    ├── auth-service-uml.drawio
+    └── event-service-uml.drawio
 ```
 
-Cada microsserviço tem **o seu** `entity.ts`: o código de domínio segue as UML em `diagrams/`, sem misturar Auth com Event no mesmo ficheiro.
+## O que há no projeto
 
-## O que tem no projeto (até agora) 🛠
+- **Domínio em TypeScript** — `entity.ts` em cada serviço, alinhado aos diagramas em `diagrams/`, sem misturar Auth com Event no mesmo ficheiro.
+- **Persistência com Prisma** — modelos e migrações por microsserviço; referências entre serviços apenas por **UUID** (ex.: `organizerUserId`, `participantUserId` no event-service), sem FK cruzada entre bases.
+- **Tipagem forte** — enums para papéis e estados (`Role`, `AccountStatus`, `EventStatus`, `InscriptionStatus`, etc.).
 
-O foco desta etapa foi modelar a **lógica de domínio** com TypeScript 
+## Git e segredos
 
-- **Auth Service** — `User`, `Profile`, `AccessLog`. Os métodos de senha e JWT em `User` são só **estrutura por agora** (stubs), já pensando na integração real (bcrypt, JWT) na fase seguinte.
-
-- **Event Service** — Onde está o fluxo do negócio: `Event`, `Activity`, `Speaker`, `Category`, `Inscription`, `CheckIn`, `Certificate` (da inscrição ao certificado).
-
-- **Tipagem forte** — Enums para papéis e estados (`Role`, `AccountStatus`, `EventStatus`, `InscriptionStatus`), para não aceitar valores inválidos onde o tipo pede um conjunto fechado.
-
-Detalhe: `Event.getAvailability()` e `Activity.isFull()` usam contadores internos iniciais até existir persistência e repositórios.
+- O ficheiro **`.env`** está no `.gitignore`; **não** faça commit de senhas ou URLs de produção.
+- O `docker-compose.yml` e os `.env.example` podem ser versionados como referência de **desenvolvimento local**; trate credenciais de produção em variáveis seguras no provedor onde for fazer deploy.
