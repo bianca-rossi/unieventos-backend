@@ -1,0 +1,102 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Category {
+  id     String  @id @default(uuid())
+  name   String
+  slug   String  @unique
+  events Event[]
+}
+
+model Event {
+  id               String        @id @default(uuid())
+  organizerUserId  String
+  categoryId       String
+  category         Category      @relation(fields: [categoryId], references: [id])
+  title            String
+  description      String
+  venueOrLink      String
+  startsAt         DateTime
+  endsAt           DateTime
+  eventMaxCapacity Int
+  status           EventStatus   @default(DRAFT)
+  activities       Activity[]
+  inscriptions     Inscription[]
+}
+
+model Activity {
+  id               String             @id @default(uuid())
+  eventId          String
+  event            Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  title            String
+  startsAt         DateTime
+  location         String
+  duration         Int
+  roomCapacity     Int
+  activitySpeakers ActivitySpeaker[]
+}
+
+model Speaker {
+  id               String             @id @default(uuid())
+  fullName         String
+  bio              String
+  affiliation      String
+  activitySpeakers ActivitySpeaker[]
+}
+
+/// Junção N:N entre Activity e Speaker (UML: agregação * — *).
+model ActivitySpeaker {
+  activityId String
+  speakerId  String
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  speaker    Speaker  @relation(fields: [speakerId], references: [id], onDelete: Cascade)
+
+  @@id([activityId, speakerId])
+}
+
+model Inscription {
+  id                  String            @id @default(uuid())
+  eventId             String
+  event               Event             @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  participantUserId   String
+  createdAt           DateTime          @default(now())
+  status              InscriptionStatus @default(PENDING)
+  checkIn             CheckIn?
+  certificate         Certificate?
+}
+
+model CheckIn {
+  id             String      @id @default(uuid())
+  inscriptionId  String      @unique
+  inscription    Inscription @relation(fields: [inscriptionId], references: [id], onDelete: Cascade)
+  checkedAt      DateTime
+  method         String
+}
+
+model Certificate {
+  id                 String      @id @default(uuid())
+  inscriptionId      String      @unique
+  inscription        Inscription @relation(fields: [inscriptionId], references: [id], onDelete: Cascade)
+  issueDate          DateTime
+  verificationCode   String
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+  COMPLETED
+}
+
+enum InscriptionStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  WAITLIST
+}
