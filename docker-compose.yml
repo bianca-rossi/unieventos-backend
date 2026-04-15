@@ -1,0 +1,39 @@
+services:
+  auth-db:
+    image: postgres:15
+    container_name: unieventos-auth-db
+    ports:
+      - "5431:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: auth_service_db
+    volumes:
+      - auth_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d auth_service_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  event-db:
+    image: postgres:15
+    container_name: unieventos-event-db
+    ports:
+      # Host 5433 evita conflito com outro Postgres local/outro stack (ex.: 5432 já em uso).
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: event_service_db
+    volumes:
+      - event_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d event_service_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  auth_db_data:
+  event_db_data:
