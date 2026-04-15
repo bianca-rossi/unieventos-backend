@@ -3,7 +3,7 @@
     "target": "ES2020",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "rootDir": "./services",
+    "rootDir": "./src",
     "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
@@ -11,5 +11,5 @@
     "declaration": true,
     "noEmitOnError": true
   },
-  "include": ["services/**/*.ts"]
+  "include": ["src/**/*.ts"]
 }

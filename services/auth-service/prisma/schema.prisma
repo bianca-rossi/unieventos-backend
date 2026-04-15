@@ -1,0 +1,51 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String          @id @default(uuid())
+  email        String          @unique
+  passwordHash String
+  createdAt    DateTime        @default(now())
+  role         Role            @default(STUDENT)
+  status       AccountStatus   @default(ACTIVE)
+  profile      Profile?
+  logs         AccessLog[]
+}
+
+model Profile {
+  id          String @id @default(uuid())
+  userId      String @unique
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName String
+  avatarUrl   String?
+  bio         String?
+}
+
+model AccessLog {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  occurredAt     DateTime @default(now())
+  action         String
+  ipAddress      String
+  userAgent      String
+  failureReason  String?
+}
+
+enum Role {
+  STUDENT
+  ORGANIZER
+  ADMIN
+}
+
+enum AccountStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+}
