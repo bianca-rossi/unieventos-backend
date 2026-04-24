@@ -139,6 +139,7 @@ export class Certificate {
     private inscriptionId: string,
     private issueDate: Date,
     private verificationCode: string,
+    private performanceScore?: number,
   ) {}
 
   public getVerificationCode(): string {

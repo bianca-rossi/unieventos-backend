@@ -87,6 +87,7 @@ model Certificate {
   inscription        Inscription @relation(fields: [inscriptionId], references: [id], onDelete: Cascade)
   issueDate          DateTime
   verificationCode   String
+  performanceScore   Float?
 }
 
 enum EventStatus {
