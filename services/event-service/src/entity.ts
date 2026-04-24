@@ -65,6 +65,7 @@ export class Activity {
     private id: string,
     private eventId: string,
     private title: string,
+    private description: string,
     private startsAt: Date,
     private location: string,
     private duration: number,

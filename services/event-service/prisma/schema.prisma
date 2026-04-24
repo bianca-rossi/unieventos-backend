@@ -35,6 +35,7 @@ model Activity {
   eventId          String
   event            Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
   title            String
+  description      String
   startsAt         DateTime
   location         String
   duration         Int
