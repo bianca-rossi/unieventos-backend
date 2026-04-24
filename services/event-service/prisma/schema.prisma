@@ -42,6 +42,8 @@ model Activity {
   duration         Int
   roomCapacity     Int
   activitySpeakers ActivitySpeaker[]
+
+  @@index([eventId])
 }
 
 model Speaker {
@@ -71,6 +73,9 @@ model Inscription {
   status              InscriptionStatus @default(PENDING)
   checkIn             CheckIn?
   certificate         Certificate?
+
+  @@index([eventId])
+  @@index([participantUserId])
 }
 
 model CheckIn {

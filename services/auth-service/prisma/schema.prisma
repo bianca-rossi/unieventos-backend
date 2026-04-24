@@ -36,6 +36,8 @@ model AccessLog {
   ipAddress      String
   userAgent      String
   failureReason  String?
+
+  @@index([userId])
 }
 
 enum Role {
