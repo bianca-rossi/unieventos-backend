@@ -37,6 +37,7 @@ export class Event {
     private startsAt: Date,
     private endsAt: Date,
     private eventMaxCapacity: number,
+    private createdAt: Date,
     private status: EventStatus,
   ) {}
 

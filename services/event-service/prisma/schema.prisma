@@ -25,6 +25,7 @@ model Event {
   startsAt         DateTime
   endsAt           DateTime
   eventMaxCapacity Int
+  createdAt        DateTime      @default(now())
   status           EventStatus   @default(DRAFT)
   activities       Activity[]
   inscriptions     Inscription[]
