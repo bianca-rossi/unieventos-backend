@@ -125,6 +125,7 @@ export class CheckIn {
     private inscriptionId: string,
     private checkedAt: Date,
     private method: string,
+    private notes?: string,
   ) {}
 
   public validateEntry(): void {

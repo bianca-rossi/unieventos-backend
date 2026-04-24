@@ -78,6 +78,7 @@ model CheckIn {
   inscription    Inscription @relation(fields: [inscriptionId], references: [id], onDelete: Cascade)
   checkedAt      DateTime
   method         String
+  notes          String?
 }
 
 model Certificate {
