@@ -102,5 +102,5 @@ enum InscriptionStatus {
   PENDING
   CONFIRMED
   CANCELLED
-  WAITLIST
+  WAITLISTED
 }

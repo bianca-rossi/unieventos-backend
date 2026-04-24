@@ -9,7 +9,7 @@ export enum InscriptionStatus {
   PENDING = "PENDING",
   CONFIRMED = "CONFIRMED",
   CANCELLED = "CANCELLED",
-  WAITLIST = "WAITLIST",
+  WAITLISTED = "WAITLISTED",
 }
 
 export class Category {
