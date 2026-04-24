@@ -25,6 +25,7 @@ model Event {
   startsAt         DateTime
   endsAt           DateTime
   eventMaxCapacity Int
+  createdAt        DateTime      @default(now())
   status           EventStatus   @default(DRAFT)
   activities       Activity[]
   inscriptions     Inscription[]
@@ -35,11 +36,14 @@ model Activity {
   eventId          String
   event            Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
   title            String
+  description      String
   startsAt         DateTime
   location         String
   duration         Int
   roomCapacity     Int
   activitySpeakers ActivitySpeaker[]
+
+  @@index([eventId])
 }
 
 model Speaker {
@@ -69,6 +73,9 @@ model Inscription {
   status              InscriptionStatus @default(PENDING)
   checkIn             CheckIn?
   certificate         Certificate?
+
+  @@index([eventId])
+  @@index([participantUserId])
 }
 
 model CheckIn {
@@ -77,6 +84,7 @@ model CheckIn {
   inscription    Inscription @relation(fields: [inscriptionId], references: [id], onDelete: Cascade)
   checkedAt      DateTime
   method         String
+  notes          String?
 }
 
 model Certificate {
@@ -85,6 +93,7 @@ model Certificate {
   inscription        Inscription @relation(fields: [inscriptionId], references: [id], onDelete: Cascade)
   issueDate          DateTime
   verificationCode   String
+  performanceScore   Float?
 }
 
 enum EventStatus {
@@ -98,5 +107,5 @@ enum InscriptionStatus {
   PENDING
   CONFIRMED
   CANCELLED
-  WAITLIST
+  WAITLISTED
 }

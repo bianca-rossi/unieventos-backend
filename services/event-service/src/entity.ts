@@ -9,7 +9,7 @@ export enum InscriptionStatus {
   PENDING = "PENDING",
   CONFIRMED = "CONFIRMED",
   CANCELLED = "CANCELLED",
-  WAITLIST = "WAITLIST",
+  WAITLISTED = "WAITLISTED",
 }
 
 export class Category {
@@ -37,6 +37,7 @@ export class Event {
     private startsAt: Date,
     private endsAt: Date,
     private eventMaxCapacity: number,
+    private createdAt: Date,
     private status: EventStatus,
   ) {}
 
@@ -65,6 +66,7 @@ export class Activity {
     private id: string,
     private eventId: string,
     private title: string,
+    private description: string,
     private startsAt: Date,
     private location: string,
     private duration: number,
@@ -124,6 +126,7 @@ export class CheckIn {
     private inscriptionId: string,
     private checkedAt: Date,
     private method: string,
+    private notes?: string,
   ) {}
 
   public validateEntry(): void {
@@ -137,6 +140,7 @@ export class Certificate {
     private inscriptionId: string,
     private issueDate: Date,
     private verificationCode: string,
+    private performanceScore?: number,
   ) {}
 
   public getVerificationCode(): string {
