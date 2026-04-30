@@ -5,6 +5,8 @@ import {
   createInscriptionSchema,
   updateInscriptionSchema,
   inscriptionParamsSchema,
+  inscriptionQuerySchema,
+  inscriptionResponseSchema,
 } from '../schemas/inscription.schema.js'
 import {
   listInscriptions,
@@ -20,23 +22,27 @@ export async function inscriptionRoutes(app: FastifyInstance) {
 
   const server = app.withTypeProvider<ZodTypeProvider>()
 
-  server.get(
-    '/',
-    {
-      schema: {
-        querystring: z.object({
-          eventId: z.string().uuid().optional(),
-          participantUserId: z.string().uuid().optional(),
-        }),
-      },
+  server.get('/', {
+    schema: {
+      tags: ['Inscriptions'],
+      summary: 'Listar inscrições',
+      querystring: inscriptionQuerySchema,
+      response: { 200: z.array(inscriptionResponseSchema) },
     },
-    async (req, reply) =>
-      reply.send(
-        await listInscriptions(req.query.eventId, req.query.participantUserId),
-      ),
+  }, async (req, reply) =>
+    reply.send(
+      await listInscriptions(req.query.eventId, req.query.participantUserId),
+    ),
   )
 
-  server.get('/:id', { schema: { params: inscriptionParamsSchema } }, async (req, reply) => {
+  server.get('/:id', {
+    schema: {
+      tags: ['Inscriptions'],
+      summary: 'Buscar inscrição por ID',
+      params: inscriptionParamsSchema,
+      response: { 200: inscriptionResponseSchema },
+    },
+  }, async (req, reply) => {
     try {
       return reply.send(await getInscriptionById(req.params.id))
     } catch {
@@ -44,7 +50,14 @@ export async function inscriptionRoutes(app: FastifyInstance) {
     }
   })
 
-  server.post('/', { schema: { body: createInscriptionSchema } }, async (req, reply) => {
+  server.post('/', {
+    schema: {
+      tags: ['Inscriptions'],
+      summary: 'Criar nova inscrição',
+      body: createInscriptionSchema,
+      response: { 201: inscriptionResponseSchema },
+    },
+  }, async (req, reply) => {
     try {
       return reply.code(201).send(await createInscription(req.body))
     } catch (err: unknown) {
@@ -55,19 +68,29 @@ export async function inscriptionRoutes(app: FastifyInstance) {
     }
   })
 
-  server.put(
-    '/:id',
-    { schema: { params: inscriptionParamsSchema, body: updateInscriptionSchema } },
-    async (req, reply) => {
-      try {
-        return reply.send(await updateInscription(req.params.id, req.body))
-      } catch {
-        return reply.notFound('Inscription not found')
-      }
+  server.put('/:id', {
+    schema: {
+      tags: ['Inscriptions'],
+      summary: 'Atualizar status da inscrição',
+      params: inscriptionParamsSchema,
+      body: updateInscriptionSchema,
+      response: { 200: inscriptionResponseSchema },
     },
-  )
+  }, async (req, reply) => {
+    try {
+      return reply.send(await updateInscription(req.params.id, req.body))
+    } catch {
+      return reply.notFound('Inscription not found')
+    }
+  })
 
-  server.delete('/:id', { schema: { params: inscriptionParamsSchema } }, async (req, reply) => {
+  server.delete('/:id', {
+    schema: {
+      tags: ['Inscriptions'],
+      summary: 'Cancelar inscrição',
+      params: inscriptionParamsSchema,
+    },
+  }, async (req, reply) => {
     try {
       await deleteInscription(req.params.id)
       return reply.code(204).send()

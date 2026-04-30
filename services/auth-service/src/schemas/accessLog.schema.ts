@@ -16,4 +16,14 @@ export const accessLogQuerySchema = z.object({
   userId: z.string().uuid().optional(),
 })
 
+export const accessLogResponseSchema = z.object({
+  id: z.string().uuid(),
+  userId: z.string().uuid(),
+  occurredAt: z.date(),
+  action: z.string(),
+  ipAddress: z.string(),
+  userAgent: z.string(),
+  failureReason: z.string().nullable(),
+})
+
 export type CreateAccessLogInput = z.infer<typeof createAccessLogSchema>

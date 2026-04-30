@@ -23,5 +23,20 @@ export const activityParamsSchema = z.object({
   id: z.string().uuid(),
 })
 
+export const activityQuerySchema = z.object({
+  eventId: z.string().uuid().optional(),
+})
+
+export const activityResponseSchema = z.object({
+  id: z.string().uuid(),
+  eventId: z.string().uuid(),
+  title: z.string(),
+  description: z.string(),
+  startsAt: z.date(),
+  location: z.string(),
+  duration: z.number().int(),
+  roomCapacity: z.number().int(),
+})
+
 export type CreateActivityInput = z.infer<typeof createActivitySchema>
 export type UpdateActivityInput = z.infer<typeof updateActivitySchema>

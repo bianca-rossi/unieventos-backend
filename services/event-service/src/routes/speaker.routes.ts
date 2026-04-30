@@ -1,9 +1,11 @@
 import type { FastifyInstance } from 'fastify'
 import { serializerCompiler, validatorCompiler, type ZodTypeProvider } from '@fastify/type-provider-zod'
+import { z } from 'zod'
 import {
   createSpeakerSchema,
   updateSpeakerSchema,
   speakerParamsSchema,
+  speakerResponseSchema,
 } from '../schemas/speaker.schema.js'
 import {
   listSpeakers,
@@ -19,9 +21,22 @@ export async function speakerRoutes(app: FastifyInstance) {
 
   const server = app.withTypeProvider<ZodTypeProvider>()
 
-  server.get('/', async (_req, reply) => reply.send(await listSpeakers()))
+  server.get('/', {
+    schema: {
+      tags: ['Speakers'],
+      summary: 'Listar todos os palestrantes',
+      response: { 200: z.array(speakerResponseSchema) },
+    },
+  }, async (_req, reply) => reply.send(await listSpeakers()))
 
-  server.get('/:id', { schema: { params: speakerParamsSchema } }, async (req, reply) => {
+  server.get('/:id', {
+    schema: {
+      tags: ['Speakers'],
+      summary: 'Buscar palestrante por ID',
+      params: speakerParamsSchema,
+      response: { 200: speakerResponseSchema },
+    },
+  }, async (req, reply) => {
     try {
       return reply.send(await getSpeakerById(req.params.id))
     } catch {
@@ -29,23 +44,40 @@ export async function speakerRoutes(app: FastifyInstance) {
     }
   })
 
-  server.post('/', { schema: { body: createSpeakerSchema } }, async (req, reply) => {
+  server.post('/', {
+    schema: {
+      tags: ['Speakers'],
+      summary: 'Criar novo palestrante',
+      body: createSpeakerSchema,
+      response: { 201: speakerResponseSchema },
+    },
+  }, async (req, reply) => {
     return reply.code(201).send(await createSpeaker(req.body))
   })
 
-  server.put(
-    '/:id',
-    { schema: { params: speakerParamsSchema, body: updateSpeakerSchema } },
-    async (req, reply) => {
-      try {
-        return reply.send(await updateSpeaker(req.params.id, req.body))
-      } catch {
-        return reply.notFound('Speaker not found')
-      }
+  server.put('/:id', {
+    schema: {
+      tags: ['Speakers'],
+      summary: 'Atualizar palestrante',
+      params: speakerParamsSchema,
+      body: updateSpeakerSchema,
+      response: { 200: speakerResponseSchema },
     },
-  )
+  }, async (req, reply) => {
+    try {
+      return reply.send(await updateSpeaker(req.params.id, req.body))
+    } catch {
+      return reply.notFound('Speaker not found')
+    }
+  })
 
-  server.delete('/:id', { schema: { params: speakerParamsSchema } }, async (req, reply) => {
+  server.delete('/:id', {
+    schema: {
+      tags: ['Speakers'],
+      summary: 'Deletar palestrante',
+      params: speakerParamsSchema,
+    },
+  }, async (req, reply) => {
     try {
       await deleteSpeaker(req.params.id)
       return reply.code(204).send()

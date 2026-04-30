@@ -1,9 +1,11 @@
 import type { FastifyInstance } from 'fastify'
 import { serializerCompiler, validatorCompiler, type ZodTypeProvider } from '@fastify/type-provider-zod'
+import { z } from 'zod'
 import {
   createCertificateSchema,
   certificateParamsSchema,
   certificateQuerySchema,
+  certificateResponseSchema,
 } from '../schemas/certificate.schema.js'
 import {
   listCertificates,
@@ -18,13 +20,23 @@ export async function certificateRoutes(app: FastifyInstance) {
 
   const server = app.withTypeProvider<ZodTypeProvider>()
 
-  server.get(
-    '/',
-    { schema: { querystring: certificateQuerySchema } },
-    async (req, reply) => reply.send(await listCertificates(req.query.inscriptionId)),
-  )
+  server.get('/', {
+    schema: {
+      tags: ['Certificates'],
+      summary: 'Listar certificados',
+      querystring: certificateQuerySchema,
+      response: { 200: z.array(certificateResponseSchema) },
+    },
+  }, async (req, reply) => reply.send(await listCertificates(req.query.inscriptionId)))
 
-  server.get('/:id', { schema: { params: certificateParamsSchema } }, async (req, reply) => {
+  server.get('/:id', {
+    schema: {
+      tags: ['Certificates'],
+      summary: 'Buscar certificado por ID',
+      params: certificateParamsSchema,
+      response: { 200: certificateResponseSchema },
+    },
+  }, async (req, reply) => {
     try {
       return reply.send(await getCertificateById(req.params.id))
     } catch {
@@ -32,7 +44,14 @@ export async function certificateRoutes(app: FastifyInstance) {
     }
   })
 
-  server.post('/', { schema: { body: createCertificateSchema } }, async (req, reply) => {
+  server.post('/', {
+    schema: {
+      tags: ['Certificates'],
+      summary: 'Emitir certificado',
+      body: createCertificateSchema,
+      response: { 201: certificateResponseSchema },
+    },
+  }, async (req, reply) => {
     try {
       return reply.code(201).send(await createCertificate(req.body))
     } catch (err: unknown) {
@@ -43,7 +62,13 @@ export async function certificateRoutes(app: FastifyInstance) {
     }
   })
 
-  server.delete('/:id', { schema: { params: certificateParamsSchema } }, async (req, reply) => {
+  server.delete('/:id', {
+    schema: {
+      tags: ['Certificates'],
+      summary: 'Deletar certificado',
+      params: certificateParamsSchema,
+    },
+  }, async (req, reply) => {
     try {
       await deleteCertificate(req.params.id)
       return reply.code(204).send()

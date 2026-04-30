@@ -17,5 +17,13 @@ export const profileUserParamsSchema = z.object({
   userId: z.string().uuid(),
 })
 
+export const profileResponseSchema = z.object({
+  id: z.string().uuid(),
+  userId: z.string().uuid(),
+  displayName: z.string(),
+  avatarUrl: z.string().url().nullable(),
+  bio: z.string().nullable(),
+})
+
 export type CreateProfileInput = z.infer<typeof createProfileSchema>
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>

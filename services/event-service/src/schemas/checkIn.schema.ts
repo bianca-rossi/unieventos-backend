@@ -15,4 +15,12 @@ export const checkInQuerySchema = z.object({
   inscriptionId: z.string().uuid().optional(),
 })
 
+export const checkInResponseSchema = z.object({
+  id: z.string().uuid(),
+  inscriptionId: z.string().uuid(),
+  checkedAt: z.date(),
+  method: z.string(),
+  notes: z.string().nullable(),
+})
+
 export type CreateCheckInInput = z.infer<typeof createCheckInSchema>

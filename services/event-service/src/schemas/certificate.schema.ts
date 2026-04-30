@@ -15,4 +15,12 @@ export const certificateQuerySchema = z.object({
   inscriptionId: z.string().uuid().optional(),
 })
 
+export const certificateResponseSchema = z.object({
+  id: z.string().uuid(),
+  inscriptionId: z.string().uuid(),
+  issueDate: z.date(),
+  verificationCode: z.string(),
+  performanceScore: z.number().nullable(),
+})
+
 export type CreateCertificateInput = z.infer<typeof createCertificateSchema>

@@ -5,6 +5,8 @@ import {
   createActivitySchema,
   updateActivitySchema,
   activityParamsSchema,
+  activityQuerySchema,
+  activityResponseSchema,
 } from '../schemas/activity.schema.js'
 import {
   listActivities,
@@ -20,13 +22,23 @@ export async function activityRoutes(app: FastifyInstance) {
 
   const server = app.withTypeProvider<ZodTypeProvider>()
 
-  server.get(
-    '/',
-    { schema: { querystring: z.object({ eventId: z.string().uuid().optional() }) } },
-    async (req, reply) => reply.send(await listActivities(req.query.eventId)),
-  )
+  server.get('/', {
+    schema: {
+      tags: ['Activities'],
+      summary: 'Listar atividades',
+      querystring: activityQuerySchema,
+      response: { 200: z.array(activityResponseSchema) },
+    },
+  }, async (req, reply) => reply.send(await listActivities(req.query.eventId)))
 
-  server.get('/:id', { schema: { params: activityParamsSchema } }, async (req, reply) => {
+  server.get('/:id', {
+    schema: {
+      tags: ['Activities'],
+      summary: 'Buscar atividade por ID',
+      params: activityParamsSchema,
+      response: { 200: activityResponseSchema },
+    },
+  }, async (req, reply) => {
     try {
       return reply.send(await getActivityById(req.params.id))
     } catch {
@@ -34,7 +46,14 @@ export async function activityRoutes(app: FastifyInstance) {
     }
   })
 
-  server.post('/', { schema: { body: createActivitySchema } }, async (req, reply) => {
+  server.post('/', {
+    schema: {
+      tags: ['Activities'],
+      summary: 'Criar nova atividade',
+      body: createActivitySchema,
+      response: { 201: activityResponseSchema },
+    },
+  }, async (req, reply) => {
     try {
       return reply.code(201).send(await createActivity(req.body))
     } catch (err: unknown) {
@@ -44,19 +63,29 @@ export async function activityRoutes(app: FastifyInstance) {
     }
   })
 
-  server.put(
-    '/:id',
-    { schema: { params: activityParamsSchema, body: updateActivitySchema } },
-    async (req, reply) => {
-      try {
-        return reply.send(await updateActivity(req.params.id, req.body))
-      } catch {
-        return reply.notFound('Activity not found')
-      }
+  server.put('/:id', {
+    schema: {
+      tags: ['Activities'],
+      summary: 'Atualizar atividade',
+      params: activityParamsSchema,
+      body: updateActivitySchema,
+      response: { 200: activityResponseSchema },
     },
-  )
+  }, async (req, reply) => {
+    try {
+      return reply.send(await updateActivity(req.params.id, req.body))
+    } catch {
+      return reply.notFound('Activity not found')
+    }
+  })
 
-  server.delete('/:id', { schema: { params: activityParamsSchema } }, async (req, reply) => {
+  server.delete('/:id', {
+    schema: {
+      tags: ['Activities'],
+      summary: 'Deletar atividade',
+      params: activityParamsSchema,
+    },
+  }, async (req, reply) => {
     try {
       await deleteActivity(req.params.id)
       return reply.code(204).send()

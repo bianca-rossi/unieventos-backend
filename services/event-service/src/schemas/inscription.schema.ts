@@ -15,5 +15,18 @@ export const inscriptionParamsSchema = z.object({
   id: z.string().uuid(),
 })
 
+export const inscriptionQuerySchema = z.object({
+  eventId: z.string().uuid().optional(),
+  participantUserId: z.string().uuid().optional(),
+})
+
+export const inscriptionResponseSchema = z.object({
+  id: z.string().uuid(),
+  eventId: z.string().uuid(),
+  participantUserId: z.string().uuid(),
+  createdAt: z.date(),
+  status: inscriptionStatusSchema,
+})
+
 export type CreateInscriptionInput = z.infer<typeof createInscriptionSchema>
 export type UpdateInscriptionInput = z.infer<typeof updateInscriptionSchema>

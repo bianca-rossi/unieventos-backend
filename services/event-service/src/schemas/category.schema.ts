@@ -14,5 +14,11 @@ export const categoryParamsSchema = z.object({
   id: z.string().uuid(),
 })
 
+export const categoryResponseSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  slug: z.string(),
+})
+
 export type CreateCategoryInput = z.infer<typeof createCategorySchema>
 export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>

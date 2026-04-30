@@ -20,5 +20,13 @@ export const userParamsSchema = z.object({
   id: z.string().uuid(),
 })
 
+export const userResponseSchema = z.object({
+  id: z.string().uuid(),
+  email: z.string().email(),
+  role: roleSchema,
+  status: accountStatusSchema,
+  createdAt: z.date(),
+})
+
 export type CreateUserInput = z.infer<typeof createUserSchema>
 export type UpdateUserInput = z.infer<typeof updateUserSchema>

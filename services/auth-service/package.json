@@ -21,10 +21,12 @@
   },
   "dependencies": {
     "@fastify/sensible": "^6.0.4",
+    "@fastify/swagger": "^9.7.0",
+    "@fastify/swagger-ui": "^5.2.6",
     "@fastify/type-provider-zod": "^1.0.0",
     "@prisma/client": "^6.19.0",
     "fastify": "^5.8.5",
-    "zod": "^4.3.6"
+    "zod": "^4.4.1"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",

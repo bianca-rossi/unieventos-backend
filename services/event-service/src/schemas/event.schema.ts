@@ -30,5 +30,19 @@ export const eventParamsSchema = z.object({
   id: z.string().uuid(),
 })
 
+export const eventResponseSchema = z.object({
+  id: z.string().uuid(),
+  organizerUserId: z.string().uuid(),
+  categoryId: z.string().uuid(),
+  title: z.string(),
+  description: z.string(),
+  venueOrLink: z.string(),
+  startsAt: z.date(),
+  endsAt: z.date(),
+  eventMaxCapacity: z.number().int(),
+  createdAt: z.date(),
+  status: eventStatusSchema,
+})
+
 export type CreateEventInput = z.infer<typeof createEventSchema>
 export type UpdateEventInput = z.infer<typeof updateEventSchema>

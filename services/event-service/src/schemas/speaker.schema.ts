@@ -16,5 +16,12 @@ export const speakerParamsSchema = z.object({
   id: z.string().uuid(),
 })
 
+export const speakerResponseSchema = z.object({
+  id: z.string().uuid(),
+  fullName: z.string(),
+  bio: z.string(),
+  affiliation: z.string(),
+})
+
 export type CreateSpeakerInput = z.infer<typeof createSpeakerSchema>
 export type UpdateSpeakerInput = z.infer<typeof updateSpeakerSchema>
