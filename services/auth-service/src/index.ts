@@ -2,6 +2,7 @@ import Fastify from 'fastify'
 import sensible from '@fastify/sensible'
 import swagger from '@fastify/swagger'
 import swaggerUi from '@fastify/swagger-ui'
+import { jsonSchemaTransform } from '@fastify/type-provider-zod'
 import { userRoutes } from './routes/user.routes.js'
 import { profileRoutes } from './routes/profile.routes.js'
 import { accessLogRoutes } from './routes/accessLog.routes.js'
@@ -11,6 +12,7 @@ const app = Fastify({ logger: true })
 await app.register(sensible)
 
 await app.register(swagger, {
+  transform: jsonSchemaTransform,
   openapi: {
     info: {
       title: 'Auth Service',

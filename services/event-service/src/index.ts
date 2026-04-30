@@ -2,6 +2,7 @@ import Fastify from 'fastify'
 import sensible from '@fastify/sensible'
 import swagger from '@fastify/swagger'
 import swaggerUi from '@fastify/swagger-ui'
+import { jsonSchemaTransform } from '@fastify/type-provider-zod'
 import { categoryRoutes } from './routes/category.routes.js'
 import { eventRoutes } from './routes/event.routes.js'
 import { speakerRoutes } from './routes/speaker.routes.js'
@@ -16,6 +17,7 @@ const app = Fastify({ logger: true })
 await app.register(sensible)
 
 await app.register(swagger, {
+  transform: jsonSchemaTransform,
   openapi: {
     info: {
       title: 'Event Service',
