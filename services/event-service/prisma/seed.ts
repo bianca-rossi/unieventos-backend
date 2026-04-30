@@ -2,9 +2,9 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// UUIDs fixos que espelham os usuários criados no auth-service (sem FK cruzada)
-const UUID_ORGANIZER = "00000000-0000-0000-0000-000000000002";
-const UUID_STUDENT   = "00000000-0000-0000-0000-000000000003";
+// UUIDs fixos (v4 válidos) que espelham os usuários criados no auth-service (sem FK cruzada)
+const UUID_ORGANIZER = "00000000-0000-4000-8000-000000000002";
+const UUID_STUDENT   = "00000000-0000-4000-8000-000000000003";
 
 async function main() {
   // Limpeza idempotente — ordem inversa de dependência
@@ -57,6 +57,7 @@ async function main() {
     data: {
       eventId: event.id,
       title: "Palestra: IA no Campus — do laboratório à aplicação real",
+      description: "Apresentação sobre aplicações práticas de inteligência artificial no ambiente universitário.",
       startsAt: new Date("2026-05-13T10:00:00Z"),
       location: "Auditório Principal — Bloco A",
       duration: 90,

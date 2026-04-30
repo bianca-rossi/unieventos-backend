@@ -2,10 +2,10 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// UUIDs fixos para que o event-service possa referenciá-los sem FK cruzada
-const UUID_ADMIN    = "00000000-0000-0000-0000-000000000001";
-const UUID_ORGANIZER = "00000000-0000-0000-0000-000000000002";
-const UUID_STUDENT  = "00000000-0000-0000-0000-000000000003";
+// UUIDs fixos (v4 válidos) para que o event-service possa referenciá-los sem FK cruzada
+const UUID_ADMIN     = "00000000-0000-4000-8000-000000000001";
+const UUID_ORGANIZER = "00000000-0000-4000-8000-000000000002";
+const UUID_STUDENT   = "00000000-0000-4000-8000-000000000003";
 
 async function main() {
   // Limpeza idempotente — ordem inversa de dependência
