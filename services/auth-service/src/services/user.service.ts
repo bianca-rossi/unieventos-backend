@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs'
 import prisma from '../lib/prisma.js'
 import type { CreateUserInput, UpdateUserInput } from '../schemas/user.schema.js'
 
@@ -32,8 +33,10 @@ export async function createUser(data: CreateUserInput) {
   const existing = await prisma.user.findUnique({ where: { email: data.email } })
   if (existing) throw new Error('Email already in use')
 
+  const passwordHash = await bcrypt.hash(data.password, 10)
+
   return prisma.user.create({
-    data,
+    data: { email: data.email, passwordHash, role: data.role },
     select: {
       id: true,
       email: true,
@@ -53,9 +56,12 @@ export async function updateUser(id: string, data: UpdateUserInput) {
     if (emailTaken) throw new Error('Email already in use')
   }
 
+  const { password, ...rest } = data
+  const passwordHash = password ? await bcrypt.hash(password, 10) : undefined
+
   return prisma.user.update({
     where: { id },
-    data,
+    data: { ...rest, ...(passwordHash && { passwordHash }) },
     select: {
       id: true,
       email: true,
