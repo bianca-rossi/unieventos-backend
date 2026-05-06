@@ -1,5 +1,6 @@
 import Fastify from 'fastify'
 import sensible from '@fastify/sensible'
+import jwt from '@fastify/jwt'
 import swagger from '@fastify/swagger'
 import swaggerUi from '@fastify/swagger-ui'
 import { jsonSchemaTransform } from '@fastify/type-provider-zod'
@@ -15,6 +16,7 @@ import { certificateRoutes } from './routes/certificate.routes.js'
 const app = Fastify({ logger: true })
 
 await app.register(sensible)
+await app.register(jwt, { secret: process.env.JWT_SECRET ?? 'dev-secret-change-in-prod' })
 
 await app.register(swagger, {
   transform: jsonSchemaTransform,
@@ -46,6 +48,15 @@ await app.register(activitySpeakerRoutes, { prefix: '/activities' })
 await app.register(inscriptionRoutes, { prefix: '/inscriptions' })
 await app.register(checkInRoutes, { prefix: '/check-ins' })
 await app.register(certificateRoutes, { prefix: '/certificates' })
+
+app.addHook('onRequest', async (request, reply) => {
+  if (request.url.startsWith('/docs')) return
+  try {
+    await request.jwtVerify()
+  } catch {
+    return reply.unauthorized('Token inválido ou ausente')
+  }
+})
 
 const port = Number(process.env.PORT ?? 3002)
 const host = process.env.HOST ?? '0.0.0.0'
