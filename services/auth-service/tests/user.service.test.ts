@@ -7,6 +7,13 @@ vi.mock('../src/lib/prisma.js', async () => {
   return { default: mockDeep<PrismaClient>() }
 })
 
+vi.mock('bcryptjs', () => ({
+  default: {
+    hash: vi.fn().mockResolvedValue('hashed-password'),
+    compare: vi.fn().mockResolvedValue(true),
+  },
+}))
+
 import prisma from '../src/lib/prisma.js'
 const prismaMock = prisma as unknown as DeepMockProxy<PrismaClient>
 
@@ -30,7 +37,7 @@ describe('UserService.create', () => {
     await expect(
       createUser({
         email: 'existing@test.com',
-        passwordHash: 'any-hash',
+        password: 'anypassword123',
         role: 'STUDENT',
       }),
     ).rejects.toThrow('Email already in use')
@@ -41,7 +48,7 @@ describe('UserService.create', () => {
     prismaMock.user.create.mockResolvedValue({
       id: 'new-uuid',
       email: 'new@test.com',
-      passwordHash: 'any-hash',
+      passwordHash: 'hashed-password',
       createdAt: new Date(),
       role: 'STUDENT',
       status: 'ACTIVE',
@@ -49,7 +56,7 @@ describe('UserService.create', () => {
 
     const result = await createUser({
       email: 'new@test.com',
-      passwordHash: 'any-hash',
+      password: 'anypassword123',
       role: 'STUDENT',
     })
 
